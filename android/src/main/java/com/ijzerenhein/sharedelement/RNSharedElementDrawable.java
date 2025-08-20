@@ -13,21 +13,19 @@ import android.graphics.ColorFilter;
 import android.graphics.Matrix;
 import android.widget.ImageView;
 
-import com.facebook.react.views.image.ReactImageView;
-import com.facebook.react.views.view.ReactViewGroup;
-import com.facebook.react.uimanager.BackgroundStyleApplicator;
-import com.facebook.react.uimanager.ThemedReactContext;
+import com.facebook.react.common.annotations.UnstableReactNativeAPI;
 import com.facebook.react.uimanager.LengthPercentage;
 import com.facebook.react.uimanager.LengthPercentageType;
+import com.facebook.react.uimanager.drawable.CSSBackgroundDrawable;
 import com.facebook.react.uimanager.style.BorderRadiusProp;
-import com.facebook.react.uimanager.style.LogicalEdge;
-import com.facebook.react.uimanager.style.BorderStyle;
+import com.facebook.react.views.image.ReactImageView;
+import com.facebook.react.views.view.ReactViewGroup;
 
 import com.facebook.drawee.generic.GenericDraweeHierarchy;
 import com.facebook.drawee.drawable.ScalingUtils.ScaleType;
 import com.facebook.drawee.generic.RoundingParams;
 
-class RNSharedElementDrawable extends Drawable {
+@UnstableReactNativeAPI class RNSharedElementDrawable extends Drawable {
   enum ViewType {
     NONE("none"),
     REACTIMAGEVIEW("image"),
@@ -48,19 +46,13 @@ class RNSharedElementDrawable extends Drawable {
 
   // static final private String LOG_TAG = "RNSharedElementDrawable";
 
-  private ThemedReactContext mContext = null;
-  private View mView = null;
   private RNSharedElementContent mContent = null;
   private RNSharedElementStyle mStyle = null;
   private ViewType mViewType = ViewType.NONE;
   private float mPosition = 0;
   private int mAlpha = 255;
   private Path mPathForBorderRadiusOutline = null;
-
-  public RNSharedElementDrawable(ThemedReactContext context) {
-    mContext = context;
-    mView = new View(context);
-  }
+  private CSSBackgroundDrawable mCSSBackgroundDrawable = null;
 
   RNSharedElementStyle getStyle() {
     return mStyle;
@@ -307,23 +299,37 @@ class RNSharedElementDrawable extends Drawable {
   private void drawPlainView(Canvas canvas) {
     RNSharedElementStyle style = mStyle;
 
-    // Update background color
-    BackgroundStyleApplicator.setBackgroundColor(mView, style.backgroundColor);
+    // Create drawable
+    CSSBackgroundDrawable drawable = mCSSBackgroundDrawable;
+    if (drawable == null) {
+      drawable = new CSSBackgroundDrawable(mContent.view.getContext());
+      mCSSBackgroundDrawable = drawable;
+    }
+    drawable.setBounds(getBounds());
 
-    // Update border
-    BackgroundStyleApplicator.setBorderStyle(mView, BorderStyle.fromString(style.borderStyle));
-    BackgroundStyleApplicator.setBorderColor(mView, LogicalEdge.ALL, style.borderColor);
-    BackgroundStyleApplicator.setBorderWidth(mView, LogicalEdge.ALL, style.borderWidth / 2f);
-    BackgroundStyleApplicator.setBorderRadius(mView, BorderRadiusProp.BORDER_TOP_LEFT_RADIUS, new LengthPercentage(style.borderTopLeftRadius, LengthPercentageType.POINT));
-    BackgroundStyleApplicator.setBorderRadius(mView, BorderRadiusProp.BORDER_TOP_RIGHT_RADIUS, new LengthPercentage(style.borderTopRightRadius, LengthPercentageType.POINT));
-    BackgroundStyleApplicator.setBorderRadius(mView, BorderRadiusProp.BORDER_BOTTOM_RIGHT_RADIUS, new LengthPercentage(style.borderBottomRightRadius, LengthPercentageType.POINT));
-    BackgroundStyleApplicator.setBorderRadius(mView, BorderRadiusProp.BORDER_BOTTOM_LEFT_RADIUS, new LengthPercentage(style.borderBottomLeftRadius, LengthPercentageType.POINT));
+    // Set background color
+    drawable.setColor(style.backgroundColor);
+
+    // Set border
+    drawable.setBorderStyle(style.borderStyle);
+    for (int i = 0; i < 4; i++) {
+      drawable.setBorderColor(i, style.borderColor);
+      drawable.setBorderWidth(i, style.borderWidth);
+    }
+
+    setRadiusIfRadiusIsValid(drawable, BorderRadiusProp.BORDER_TOP_LEFT_RADIUS, style.borderTopLeftRadius);
+    setRadiusIfRadiusIsValid(drawable, BorderRadiusProp.BORDER_TOP_RIGHT_RADIUS, style.borderTopRightRadius);
+    setRadiusIfRadiusIsValid(drawable, BorderRadiusProp.BORDER_BOTTOM_RIGHT_RADIUS, style.borderBottomRightRadius);
+    setRadiusIfRadiusIsValid(drawable, BorderRadiusProp.BORDER_BOTTOM_LEFT_RADIUS, style.borderBottomLeftRadius);
 
     // Draw!
-    Drawable drawable = mView.getBackground();
-    drawable.setBounds(getBounds());
     drawable.draw(canvas);
   }
+
+  private void setRadiusIfRadiusIsValid(CSSBackgroundDrawable drawable, BorderRadiusProp prop, float radius) {
+    drawable.setBorderRadius(prop, new LengthPercentage(radius, LengthPercentageType.POINT));
+  }
+
 
   private void drawGenericView(Canvas canvas) {
     mContent.view.draw(canvas);
