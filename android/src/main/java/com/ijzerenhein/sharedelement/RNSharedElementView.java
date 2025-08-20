@@ -16,7 +16,7 @@ class RNSharedElementView extends View {
   RNSharedElementView(ThemedReactContext context) {
     super(context);
     mViewType = RNSharedElementDrawable.ViewType.NONE;
-    mDrawable = new RNSharedElementDrawable(context);
+    mDrawable = new RNSharedElementDrawable();
     setBackground(mDrawable);
   }
 
