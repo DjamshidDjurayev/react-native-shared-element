@@ -1,5 +1,5 @@
 {
-  "name": "djurayev-react-native-shared-element",
+  "name": "react-native-shared-element",
   "version": "0.8.123",
   "description": "Native shared element transition primitives for react-native 💫",
   "main": "build/index.js",
