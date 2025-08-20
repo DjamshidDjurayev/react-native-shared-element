@@ -1,6 +1,6 @@
 {
-  "name": "react-native-shared-element",
-  "version": "0.9.0-rc0",
+  "name": "djurayev-react-native-shared-element",
+  "version": "0.8.123",
   "description": "Native shared element transition primitives for react-native 💫",
   "main": "build/index.js",
   "types": "build/index.d.ts",
@@ -26,11 +26,11 @@
     "shared element transition",
     "visual clone"
   ],
-  "repository": "https://github.com/IjzerenHein/react-native-shared-element",
-  "bugs": "https://github.com/IjzerenHein/react-native-shared-element/issues",
+  "repository": "https://github.com/DjamshidDjurayev/react-native-shared-element",
+  "bugs": "https://github.com/DjamshidDjurayev/react-native-shared-element/issues",
   "author": "IjzerenHein <hrutjes@gmail.com>",
   "license": "MIT",
-  "homepage": "https://github.com/IjzerenHein/react-native-shared-element",
+  "homepage": "https://github.com/DjamshidDjurayev/react-native-shared-element",
   "files": [
     "src/",
     "build/",
